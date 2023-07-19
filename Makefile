@@ -2,8 +2,8 @@ all: build run
 
 build:
 	mkdir -p dist
-	gcc -o dist/main.o -c src/main.s
-	ld -o dist/main dist/main.o
+	nasm -f elf64 -o dist/main.o src/main.asm
+	ld dist/main.o -o dist/main
 
 run:
 	dist/main
