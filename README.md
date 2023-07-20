@@ -1,6 +1,9 @@
-# ThePriceIsRight
-A "The Price Is Right" game in nasm assembly x86_64 (intel 64 bits)
+# T9 Decrypter
+A T9 Decryper in nasm assembly x86_64 (intel 64 bits)
 Made from scratch.
+
+This is an entry in [the second devcode challenge](challenge.pdf)
+
 ## Usage
 
 ### Linux
