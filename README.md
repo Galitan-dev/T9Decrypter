@@ -1,5 +1,6 @@
 # ThePriceIsRight
-A "The Price Is Right" game in assembly x86_64 (intel 64 bits)
+A "The Price Is Right" game in nasm assembly x86_64 (intel 64 bits)
+Made from scratch.
 ## Usage
 
 ### Linux
