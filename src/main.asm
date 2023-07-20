@@ -25,8 +25,8 @@ section .data
     yr          db      "You are "
     yr_len      equ     $ - yr
     year        equ     2023
-    nl          db      0x0A
-    nl_len      equ     $ - nl 
+    yo          db      " years old", 0x0A
+    yo_len      equ     $ - yo
 ; --------------------------------
 section .text
     global  _start
@@ -122,7 +122,6 @@ _parse_int:
 
 ; rdi: adress of first byte of output
 ; rsi: number to render
-; doesn't work for more than 1 byte ?
 _to_str:
 
     xor rax, rax
@@ -131,21 +130,19 @@ _to_str:
     xor r9, r9
 
     .loop:
-    cmp rax, 10
-    jb .next
+    cmp rax, 0
+    jbe .write
+    xor rdx, rdx
+    .here:
     div r8d
     add rdx, ASCII_0
     push rdx
     inc r9
     jmp .loop
 
-    .next:
-    add rax, ASCII_0
-    mov [rdi], al
-
     .write:
     cmp r9, 0
-    je .end
+    je .next
 
     inc rdi
     pop rax
@@ -153,7 +150,7 @@ _to_str:
     dec r9
     jmp .write
 
-    .end:
+    .next:
     ret
 
 _start:
@@ -207,8 +204,8 @@ _start:
     mov     rdi, age
     call    _write_stdout
 
-    mov     rsi, nl_len
-    mov     rdi, nl
+    mov     rsi, yo_len
+    mov     rdi, yo
     call    _write_stdout
 
     xor     edi, edi
