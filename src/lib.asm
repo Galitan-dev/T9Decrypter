@@ -25,6 +25,40 @@ _read_stdin:
     syscall
     ret
 
+; rdi:  prompt address
+; rsi:  prompt length
+; rdx:  input adress
+; rcx:  input length 
+_prompt:
+    push    rdx
+    mov     rdi, rdi
+    mov     rsi, rsi
+    call    _write_stdout
+    pop     rdx
+
+    mov     rdi, rdx
+    mov     rsi, rcx
+    call    _read_stdin
+    dec rax                         ; ignore line break
+
+    ret
+
+; ; rdi:  prompt address
+; ; rsi:  prompt length
+; ; rdx:  input adress
+; ; rcx:  input length 
+; ; rax:  result
+; _prompt_int:
+    
+;     call    _prompt
+
+;     mov     rdi, rdx
+;     mov     rsi, rax
+;     dec     rsi                     ; skip line break
+;     call    _parse_int
+
+;     ret
+
 _exit:
     mov     rax, SYS_EXIT
     syscall
@@ -98,35 +132,35 @@ _parse_int:
     inc     rbx
     ret
 
-; rdi: adress of first byte of output
-; rsi: number to render
-_to_str:
+; ; rdi: adress of first byte of output
+; ; rsi: number to render
+; _to_str:
 
-    xor rax, rax
-    mov rax, rsi
-    mov r8, 10
-    xor r9, r9
+;     xor rax, rax
+;     mov rax, rsi
+;     mov r8, 10
+;     xor r9, r9
 
-    .loop:
-    cmp rax, 0
-    jbe .write
-    xor rdx, rdx
-    .here:
-    div r8d
-    add rdx, ASCII_0
-    push rdx
-    inc r9
-    jmp .loop
+;     .loop:
+;     cmp rax, 0
+;     jbe .write
+;     xor rdx, rdx
+;     .here:
+;     div r8d
+;     add rdx, ASCII_0
+;     push rdx
+;     inc r9
+;     jmp .loop
 
-    .write:
-    cmp r9, 0
-    je .next
+;     .write:
+;     cmp r9, 0
+;     je .next
 
-    inc rdi
-    pop rax
-    mov [rdi], al
-    dec r9
-    jmp .write
+;     inc rdi
+;     pop rax
+;     mov [rdi], al
+;     dec r9
+;     jmp .write
 
-    .next:
-    ret
+;     .next:
+;     ret

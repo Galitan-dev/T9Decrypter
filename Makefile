@@ -8,7 +8,7 @@ build:
 	ld -o dist/main dist/main.o
 
 debug:
-	gdb	dist/main
+	gdb	dist/main -q
 
 run:
 	dist/main
