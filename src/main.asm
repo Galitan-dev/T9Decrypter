@@ -14,9 +14,8 @@ section .bss
 section .data
     select      db  "Please select a mode: ", 0X0A, \
                     "  - 1: T9 Encoder", 0x0A, \
-                    "  x 2: T9 keyboard", 0x0A, \
-                    "  x 3: Get all word combinations from a T9 sequel", 0x0A, \
-                    "  x 4: Decrypt a T9 sequel", 0x0A, \
+                    "  x 2: Get all word combinations from a T9 sequel", 0x0A, \
+                    "  x 3: Decrypt a T9 sequel", 0x0A, \
                     "> "
     select_len  equ $ - select
     prompt      db  "Input: "
@@ -35,10 +34,7 @@ _select_mode:
     mov     rsi, select_len
     mov     rdx, mode
     mov     rcx, mode_len
-    call    _prompt
-
-    mov     al, [mode]
-    sub     al, 0x30
+    call    _prompt_int
     
     cmp     al, 1
     jb      _select_mode
@@ -54,8 +50,6 @@ _encoder:
     mov     rdx, t9
     mov     cx, t9_len
     call    _encode_t9
-
-    here:
 
     mov     rdi, t9
     mov     si, ax

@@ -43,21 +43,20 @@ _prompt:
 
     ret
 
-; ; rdi:  prompt address
-; ; rsi:  prompt length
-; ; rdx:  input adress
-; ; rcx:  input length 
-; ; rax:  result
-; _prompt_int:
-    
-;     call    _prompt
+; rdi:  prompt address
+; rsi:  prompt length
+; rdx:  input adress
+; rcx:  input length 
+; rax:  result
+_prompt_int:
+    push    rdx
+    call    _prompt
 
-;     mov     rdi, rdx
-;     mov     rsi, rax
-;     dec     rsi                     ; skip line break
-;     call    _parse_int
+    pop     rdi
+    mov     rsi, rax
+    call    _parse_int
 
-;     ret
+    ret
 
 _exit:
     mov     rax, SYS_EXIT
