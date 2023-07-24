@@ -30,6 +30,11 @@ section .text
 
 
 _select_mode:
+    push    rdi
+    push    rsi
+    push    rdx
+    push    rcx
+
     mov     rdi, select
     mov     rsi, select_len
     mov     rdx, mode
@@ -42,9 +47,18 @@ _select_mode:
     cmp     al, 2
     ja      _select_mode
 
+    pop     rcx
+    pop     rdx
+    pop     rsi
+    pop     rdi
     ret
 
 _encoder:
+    push    rdi
+    push    rsi
+    push    rdx
+    push    rcx
+
     mov     rdi, input
     mov     si, ax
     mov     rdx, t9
@@ -58,9 +72,21 @@ _encoder:
     call    _t9_to_str
 
     mov     al, 1                   ; flag to print output buffer
+
+    pop     rcx
+    pop     rdx
+    pop     rsi
+    pop     rdi
     ret
 
-_combinations:    
+_combinations:
+    push    rdi
+    push    rsi
+    push    rdx
+    push    rcx
+    push    r8
+    push    r9
+
     mov     rdi, input
     mov     si, ax
     mov     rdx, t9
@@ -76,9 +102,19 @@ _combinations:
     call    _list_t9_combinations
 
     mov     al, 0                   ; unset flag to print output buffer
+    
+    pop     r9
+    pop     r8
+    pop     rcx
+    pop     rdx
+    pop     rsi
+    pop     rdi
     ret
     
     .on_combination:
+    push    rdi
+    push    rsi
+
     mov     rdi, output
     mov     rsi, output_len
     call    _write_stdout
@@ -87,6 +123,8 @@ _combinations:
     mov     rsi, lb_len
     call    _write_stdout
 
+    pop     rsi
+    pop     rdi
     ret
 
 _start:

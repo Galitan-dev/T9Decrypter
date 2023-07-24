@@ -12,7 +12,7 @@ This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 - [x] 💿 T9 optimal storage
 - [x] 🎉 I: T9 Encoder
 - [x] 🎉 II: T9 Combinations Listing
-- [ ] 📚 Callee convention (push registers used in current function)
+- [x] 📚 Callee convention (push registers used in current function)
 - [ ] 🙋‍♂️ Extract arguments from command line
 - [ ] 💿 Efficient words indexing
 - [ ] 🎉 III: T9 Decrypter

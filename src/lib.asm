@@ -10,19 +10,35 @@
 section .text
 
 _write_stdout:
+    push    rdx
+    push    rsi
+    push    rdi
+
     mov     rdx, rsi
     mov     rsi, rdi
     mov     rdi, STDOUT
     mov     rax, SYS_WRITE
     syscall
+
+    pop     rdi
+    pop     rsi
+    pop     rdx
     ret
 
 _read_stdin:
+    push    rdx
+    push    rsi
+    push    rdi
+
     mov     rdx, rsi
     mov     rsi, rdi
     mov     rdi, STDIN
     mov     rax, SYS_READ
     syscall
+
+    pop     rdi
+    pop     rsi
+    pop     rdx
     ret
 
 ; rdi:  prompt address
@@ -30,17 +46,20 @@ _read_stdin:
 ; rdx:  input adress
 ; rcx:  input length 
 _prompt:
-    push    rdx
+    push    rdi
+    push    rsi
+
     mov     rdi, rdi
     mov     rsi, rsi
     call    _write_stdout
-    pop     rdx
 
     mov     rdi, rdx
     mov     rsi, rcx
     call    _read_stdin
-    dec rax                         ; ignore line break
+    dec     rax                         ; ignore line break
 
+    pop     rsi
+    pop     rdi
     ret
 
 ; rdi:  prompt address
@@ -49,13 +68,19 @@ _prompt:
 ; rcx:  input length 
 ; rax:  result
 _prompt_int:
-    push    rdx
+    push    rdi
+    push    rsi
+    push    rbx
+
     call    _prompt
 
-    pop     rdi
+    mov     rdi, rdx
     mov     rsi, rax
     call    _parse_int
 
+    pop    rbx
+    pop     rsi
+    pop     rdi
     ret
 
 _exit:
@@ -67,6 +92,8 @@ _exit:
 ; rsi: exponant
 ; rax: result
 _power:
+    push    r8
+
     mov     rax, 1
     mov     r8, 0
 
@@ -78,6 +105,7 @@ _power:
     jmp     .loop
 
     .done:
+    pop     r8
     ret
 
 ; rdi: adress of first byte
@@ -85,6 +113,9 @@ _power:
 ; rax: result
 ; rbx: status, (0: ok, 1: err)
 _parse_int:
+    push    r9
+    push    rdi
+
     xor     rax, rax
     xor     rbx, rbx
     add     rdi, rsi            ; start at end of string
@@ -109,30 +140,29 @@ _parse_int:
     push    rax
     push    rdi
     push    rsi
-    push    r8
     mov     rdi, 10
     mov     rsi, r8
     call    _power
     mul     r9
-    mov     r9, rax
-    pop     r8
     pop     rsi
     pop     rdi
-    pop     rax
+    pop     r9
     add     rax, r9
 
     inc     r8
     jmp     .loop
 
-    .done:
-    ret
-
     .err:
     inc     rbx
+
+    .done:
+    pop     rdi
+    pop     r9
     ret
 
 ; ; rdi: adress of first byte of output
 ; ; rsi: number to render
+; /!\ callee convention
 ; _to_str:
 
 ;     xor rax, rax

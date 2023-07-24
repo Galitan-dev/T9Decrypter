@@ -6,6 +6,11 @@ section .text
 ; rdx:  t9 adress
 ; cx:   max t9 length (overflow will be ignored)
 _encode_t9:
+    push    r10
+    push    r8
+    push    r12
+    push    rdi
+    push    r11
 
     mov     r10, rdi
     xor     r8, r8
@@ -17,11 +22,9 @@ _encode_t9:
     cmp     r8w, cx
     jae     .next
 
-    push    r8
     xor     rdi, rdi
     mov     dil, [r10 + r8]
     call    _encode_t9_char
-    pop     r8
 
     test    r8b, 1
     jnz      .odd
@@ -43,13 +46,21 @@ _encode_t9:
     
     .next:
     mov     rax, r12
+
+    pop     r11
+    pop     rdi
+    pop     r12
+    pop     r8
+    pop     r10
     ret
 
 ; see docs/notes.md#_encode_t9_char
-; affects rdi, rax and r8
 ; dil:  ascii char
 ; al:   t9 char
 _encode_t9_char:
+    push    r8
+    push    rdi
+
     ; map character between 0 and 26
     cmp     dil, 0x20
     je      .space
@@ -68,11 +79,11 @@ _encode_t9_char:
 
     .invalid:
     mov     al, 0
-    ret
+    jmp     .end
 
     .space:
     mov     al, 10
-    ret
+    jmp     .end
 
     .uppercase:
     add     dil, 0x20               ; downcase
@@ -96,10 +107,14 @@ _encode_t9_char:
     mov     r8b, 3
     div     r8b                     ; not for later: divide whole rax, so keep an eye on the most significant bits ;(
     add     al, dil                  
-    ret
+    jmp     .end
 
     .z:
     mov     al, 9
+
+    .end:
+    pop     rdi
+    pop     r8
     ret
 
 
@@ -108,6 +123,10 @@ _encode_t9_char:
 ; rdx:  ascii representation adress
 ; cx:   max representation length (overflow will be ignored)
 _t9_to_str:
+    push    r8
+    push    r10
+    push    r11
+
     xor     r8, r8
     
     .loop:
@@ -147,6 +166,9 @@ _t9_to_str:
     jmp     .loop
     
     .next:
+    pop     r11
+    pop     r10
+    pop     r8
     ret
 
 ; dil:  t9
@@ -176,6 +198,12 @@ _t9_char_to_str:
 ; dx:   max t9 length (overflow will be ignored)
 ; ax:   output length
 _str_to_t9:
+    push    r8
+    push    r12
+    push    rbx
+    push    r10
+    push    r11
+
     xor     r8, r8
     xor     r12, r12
     xor     rbx, rbx
@@ -215,12 +243,21 @@ _str_to_t9:
 
     .next:
     mov     ax, r8w
+
+    pop     r11
+    pop     r10
+    pop     rbx
+    pop     r12
+    pop     r8
     ret
 
 ; dil:  t9 byte
 ; rax:  characters each on one byte
 ; bl:   number of possibilities
 _list_t9_char_possibilites:
+    push    r8
+    push    rdi
+
     cmp     dil, 2                  ; invalid
     jb     .end
 
@@ -274,6 +311,8 @@ _list_t9_char_possibilites:
     mov     rbx, 1
 
     .end:
+    pop     rdi
+    pop     r8
     ret
 
 ; rdi:  t9 address
@@ -283,6 +322,11 @@ _list_t9_char_possibilites:
 ; r8w:  t9 offset (set to zero)
 ; r9:   callback address
 _list_t9_combinations:
+    push    r8
+    push    r10
+    push    r12
+    push    r11
+    push    rbx
 
     cmp     r8w, si
     jae     .print
@@ -324,14 +368,11 @@ _list_t9_combinations:
     je      .end
 
     mov     [rdx + r8], al
-    push    rbx
-    push    rax
-    push    r8
     inc     r8w
+    push    rax
     call     _list_t9_combinations
-    pop     r8
     pop     rax
-    pop     rbx
+    dec     r8w
 
     shr     rax, 8
     dec     bl
@@ -339,19 +380,12 @@ _list_t9_combinations:
     jmp     .loop
 
     .print:
-    push    rdi
-    push    rsi
-    push    rdx 
-    push    rcx
-    push    r8
-    push    r9
     call    r9
-    pop     r9
-    pop     r8
-    pop     rcx
-    pop     rdx 
-    pop     rsi
-    pop     rdi
 
     .end:
+    pop     rbx
+    pop     r11
+    pop     r12
+    pop     r10
+    pop     r8
     ret
