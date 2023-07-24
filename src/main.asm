@@ -14,7 +14,7 @@ section .bss
 section .data
     select      db  "Please select a mode: ", 0X0A, \
                     "  - 1: T9 Encoder", 0x0A, \
-                    "  x 2: Get all word combinations from a T9 sequel", 0x0A, \
+                    "  - 2: Get all word combinations from a T9 sequel", 0x0A, \
                     "  x 3: Decrypt a T9 sequel", 0x0A, \
                     "> "
     select_len  equ $ - select
@@ -57,6 +57,36 @@ _encoder:
     mov     cx, output_len
     call    _t9_to_str
 
+    mov     al, 1                   ; flag to print output buffer
+    ret
+
+_combinations:    
+    mov     rdi, input
+    mov     si, ax
+    mov     rdx, t9
+    mov     cx, t9_len
+    call    _str_to_t9
+
+    mov     rdi, t9
+    mov     si, ax
+    mov     rdx, output
+    mov     cx, output_len
+    xor     r8, r8
+    mov     r9, .on_combination
+    call    _list_t9_combinations
+
+    mov     al, 0                   ; unset flag to print output buffer
+    ret
+    
+    .on_combination:
+    mov     rdi, output
+    mov     rsi, output_len
+    call    _write_stdout
+
+    mov     rdi, lb
+    mov     rsi, lb_len
+    call    _write_stdout
+
     ret
 
 _start:
@@ -69,11 +99,18 @@ _start:
     mov     rcx, input_len
     call    _prompt
 
-    push    .end                    ; point the ret to .end
+    push    .print                    ; point the ret to .end
+
     cmp     r8b, 1
     je      _encoder
+
+    cmp     r8b, 2
+    je      _combinations
     
-    .end:
+    .print:
+    cmp     al, 0                   ; flag to print output buffer
+    je      .end
+
     mov     rdi, result
     mov     rsi, result_len
     call    _write_stdout
@@ -86,5 +123,6 @@ _start:
     mov     rsi, lb_len
     call    _write_stdout
 
+    .end:
     xor     edi, edi
     call    _exit

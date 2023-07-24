@@ -1,6 +1,7 @@
 [T9 Decrypter](../README.md) Notes
 ====================================
 This are the notes I have taken during the development
+In comments, tx mean the touch x on a t9 keyboard
 
 Strucure
 ------------------------------------
@@ -15,8 +16,10 @@ Working with 64 bits
 
 Types:
 - string: a sequel of ascii bytes
-- t9: a sequel of 4 bits integer bitween `0x0` and `0x9`<br>
-    Thus, "bonjour" equals `0x2665687` in memory
+- t9: a sequel of 4 bits integer bitween `0x0` and `0xA`<br>
+    0x0: invalid
+    0xA: space
+    Thus, "bonjour" equals `0x7865662` in memory (little endian)
 - word list: in a file read line by line (too big to store in program)<br>
     Idea: index the list by word first letter
 

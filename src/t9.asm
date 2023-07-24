@@ -170,3 +170,188 @@ _t9_char_to_str:
     mov     al, 0
     ret
 
+; rdi:  ascii representation address
+; si:   ascii representation length
+; rdx:  t9 address
+; dx:   max t9 length (overflow will be ignored)
+; ax:   output length
+_str_to_t9:
+    xor     r8, r8
+    xor     r12, r12
+    xor     rbx, rbx
+    
+    .loop:
+    cmp     r8w, si
+    jae     .next
+    cmp     r8w, cx
+    jae     .next
+
+    mov     r10b, [rdi + r8]
+    sub     r10b, 0x30
+
+    cmp     r10b, 0
+    jne     .not_space
+
+    mov     r10b, 10
+
+    .not_space:
+    test    r8b, 1
+    jnz      .odd
+
+    mov     [rdx + r12], r10b
+    jmp     .continue
+
+    .odd:
+    xor     r11, r11
+    mov     r11b, [rdx + r12]
+    shl     r10b, 4
+    add     r10b, r11b
+    mov     [rdx + r12], r10b
+    inc     r12w
+
+    .continue:
+    inc     r8w
+    jmp     .loop
+
+    .next:
+    mov     ax, r8w
+    ret
+
+; dil:  t9 byte
+; rax:  characters each on one byte
+; bl:   number of possibilities
+_list_t9_char_possibilites:
+    cmp     dil, 2                  ; invalid
+    jb     .end
+
+    cmp     dil, 10                 ; invalid
+    ja      .end
+
+    cmp     dil, 10                 ; space
+    je      .space
+
+    mov     r8b, 3                  ; number of possibilities
+    sub     dil, 2                  ; between 0 and 7 included
+
+    cmp     dil, 5
+    je      .four
+    cmp     dil, 7
+    je      .four
+
+    jmp     .next
+
+    .four:
+    inc     r8b                     ; 4 possibilites for t7 and t9
+
+    .next:
+    mov     bl, r8b
+    mov     rax, 3
+    mul     dil
+
+    cmp     dil, 6
+    jb      .then
+
+    inc     al                     ; t7 has four chars, offset 1 for t8 and t9
+
+    .then:
+    mov     dil, al
+    add     dil, 0x41
+    add     dil, bl
+    xor     rax, rax
+
+    .loop:
+    cmp     r8b, 0
+    je      .end
+
+    dec     dil
+    shl     rax, 8
+    mov     al, dil
+    dec     r8b
+    jmp     .loop
+
+    .space:
+    mov     rax, 0x20
+    mov     rbx, 1
+
+    .end:
+    ret
+
+; rdi:  t9 address
+; si:   t9 length
+; rdx:  ascii adress
+; cx:   max ascii length (overflow will be ignored)
+; r8w:  t9 offset (set to zero)
+; r9:   callback address
+_list_t9_combinations:
+
+    cmp     r8w, si
+    jae     .print
+    cmp     r8w, cx
+    jae     .print
+
+    mov     r12b, 1
+    and     r12b, r8b               ; odd flag
+    shr     r8w, 1
+
+    xor     r10, r10
+    mov     r10b, [rdi + r8]
+    mov     r11b, r10b
+    shr     r11b, 4
+    shl     r11b, 4
+    sub     r10b, r11b
+
+    cmp     r12b, 0
+    je      .even
+    
+    mov     r10b, r11b
+    shr     r10b, 4
+
+    .even:
+    cmp     r10b, 0
+    je      .end
+
+    push    r8
+    push    rdi
+    mov     dil, r10b
+    call    _list_t9_char_possibilites
+    pop     rdi
+    pop     r8
+    shl     r8w, 1
+    add     r8w, r12w
+
+    .loop:
+    cmp     bl, 0
+    je      .end
+
+    mov     [rdx + r8], al
+    push    rbx
+    push    rax
+    push    r8
+    inc     r8w
+    call     _list_t9_combinations
+    pop     r8
+    pop     rax
+    pop     rbx
+
+    shr     rax, 8
+    dec     bl
+    .here:
+    jmp     .loop
+
+    .print:
+    push    rdi
+    push    rsi
+    push    rdx 
+    push    rcx
+    push    r8
+    push    r9
+    call    r9
+    pop     r9
+    pop     r8
+    pop     rcx
+    pop     rdx 
+    pop     rsi
+    pop     rdi
+
+    .end:
+    ret
