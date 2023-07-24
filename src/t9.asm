@@ -321,6 +321,7 @@ _list_t9_char_possibilites:
 ; cx:   max ascii length (overflow will be ignored)
 ; r8w:  t9 offset (set to zero)
 ; r9:   callback address
+; rdi:  callback: output length
 _list_t9_combinations:
     push    r8
     push    r10
@@ -380,7 +381,10 @@ _list_t9_combinations:
     jmp     .loop
 
     .print:
+    push    rdi
+    mov     rdi, r8
     call    r9
+    pop     rdi
 
     .end:
     pop     rbx

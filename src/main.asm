@@ -111,8 +111,8 @@ _combinations:
     push    rdi
     push    rsi
 
+    mov     rsi, rdi
     mov     rdi, output
-    mov     rsi, output_len
     call    _write_stdout
 
     mov     rdi, lb
