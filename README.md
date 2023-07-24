@@ -13,7 +13,7 @@ This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 - [x] 🎉 I: T9 Encoder
 - [x] 🎉 II: T9 Combinations Listing
 - [x] 📚 Callee convention (push registers used in current function)
-- [ ] 🙋‍♂️ Extract arguments from command line
+- [x] 🙋‍♂️ Extract arguments from command line
 - [ ] 💿 Efficient words indexing
 - [ ] 🎉 III: T9 Decrypter
 - [ ] 📚 Improve Comments
@@ -33,7 +33,7 @@ and run project with
     $ make all
     or
     $ make build
-    $ dist/main
+    $ dist/main 1 bonjour
 
 ### Windows & MacOS
 Coming soon ^^

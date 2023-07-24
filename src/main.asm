@@ -59,8 +59,6 @@ _encoder:
     push    rdx
     push    rcx
 
-    mov     rdi, input
-    mov     si, ax
     mov     rdx, t9
     mov     cx, t9_len
     call    _encode_t9
@@ -87,8 +85,6 @@ _combinations:
     push    r8
     push    r9
 
-    mov     rdi, input
-    mov     si, ax
     mov     rdx, t9
     mov     cx, t9_len
     call    _str_to_t9
@@ -128,15 +124,50 @@ _combinations:
     ret
 
 _start:
+    pop     r10                     ; argc: number of arguments ...
+    dec     r10                     ; ... including program name
+    pop     rax                     ; argv[0] = program name
+
+    cmp     r10b, 1
+    jb      .mode
+
+    pop     rdi                     ; argv[1]
+    mov     r8b, [rdi]
+    sub     r8b, 0x30
+    jmp     .next
+
+    .mode:
     call    _select_mode
     mov     r8b, al
-    
+
+    .next:
+    cmp     r10b, 2
+    jb      .input
+
+    pop     rdi
+    xor     r11b, r11b
+    xor     rsi, rsi
+
+    .loop:
+    mov     r11b, [rdi + rsi]
+
+    cmp     r11b, 0x00
+    je      .then
+
+    inc     rsi
+    jmp     .loop
+
+    .input:
     mov     rdi, prompt
     mov     rsi, prompt_len
     mov     rdx, input
     mov     rcx, input_len
     call    _prompt
 
+    mov     rdi, input
+    mov     rsi, rax
+
+    .then:
     push    .print                    ; point the ret to .end
 
     cmp     r8b, 1
