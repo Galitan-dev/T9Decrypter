@@ -14,7 +14,7 @@ This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 - [x] 🎉 II: T9 Combinations Listing
 - [x] 📚 Callee convention (push registers used in current function)
 - [x] 🙋‍♂️ Extract arguments from command line
-- [ ] 💿 Efficient words indexing
+- [x] 💿 Efficient words indexing
 - [ ] 🎉 III: T9 Decrypter
 - [ ] 📚 Improve Comments
 - [ ] 📚 Pseudo code for t9 functions
