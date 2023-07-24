@@ -5,6 +5,21 @@ Made from scratch.
 This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 [View notes](docs/notes.md)
 
+## Roadmap
+
+- [x] 🧱 Basic Program
+- [x] 🙋‍♂️ Mode Selector
+- [x] 💿 T9 optimal storage
+- [x] 🎉 I: T9 Encoder
+- [x] 🎉 II: T9 Combinations Listing
+- [ ] 📚 Callee convention (push registers used in current function)
+- [ ] 🙋‍♂️ Extract arguments from command line
+- [ ] 💿 Efficient words indexing
+- [ ] 🎉 III: T9 Decrypter
+- [ ] 📚 Improve Comments
+- [ ] 📚 Pseudo code for t9 functions
+- [ ] 📦 Delivery
+
 ## Usage
 
 ### Linux
