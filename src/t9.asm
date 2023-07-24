@@ -292,7 +292,7 @@ _list_t9_char_possibilites:
 
     .then:
     mov     dil, al
-    add     dil, 0x41
+    add     dil, 0x61
     add     dil, bl
     xor     rax, rax
 
