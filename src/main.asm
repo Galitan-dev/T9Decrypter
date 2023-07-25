@@ -124,8 +124,7 @@ _combinations:
     ret
 
 _start:
-    call    _load_words
-    jmp     .end
+    call    _load_words             ; load and index words in memory
 
     mov     rsi, 0
     mov     rdi, words_path
