@@ -8,23 +8,22 @@ Strucure
 [src](../src)
 - [main.asm](../src/main.asm): Program entry file, do all io
 - [lib.asm](../src/lib.asm): Contains common useful functions like `_write_stdout`
+- [words.asm](../src/words.asm): Index the [word dictionnary](#word-dictionnary-assetswordstxt)
 - [t9.asm](../src/t9.asm): Contains shared functions relative to t9 like `_encode_t9`
 
 Storage
 ------------------------------------
 Working with 64 bits
 
-**Types**:
+### Types:
 - string: a sequel of ascii bytes
 - t9: a sequel of 4 bits integer bitween `0x0` and `0xA`<br>
     0x0: invalid
     0xA: space
     Thus, "bonjour" equals `0x7865662` in memory (little endian)
-- word list: in a file read line by line (too big to store in program)<br>
-    Idea: index the list by word first letter
 
-**Word Dictionnary**: `assets/words.txt`
-- *Head*: 26 lines, number of words begining which each chars
+### Word Dictionnary: `assets/words.txt`
+- *Head*: 676 lines, number of words begining which each pair of chars, aa, ab, ..., az, ba, ..., zz
 - *Body*: a word per line
 
 Pseudo code

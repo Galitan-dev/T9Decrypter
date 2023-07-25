@@ -1,4 +1,5 @@
     %include    "lib.asm"
+    %include    "words.asm"
     %include    "t9.asm"
 ; --------------------------------
 section .bss
@@ -27,7 +28,6 @@ section .data
 ; --------------------------------
 section .text
     global  _start
-
 
 _select_mode:
     push    rdi
@@ -124,6 +124,26 @@ _combinations:
     ret
 
 _start:
+    call    _load_words
+    jmp     .end
+
+    mov     rsi, 0
+    mov     rdi, words_path
+    mov     rax, 5
+    syscall
+
+    mov     rdx, words_len
+    mov     rcx, words
+    mov     rbx, rax
+    mov     rax, 3
+    syscall
+
+    mov     rsi, words_len
+    mov     rdi, words
+    call    _write_stdout
+
+    jmp     .end
+
     pop     r10                     ; argc: number of arguments ...
     dec     r10                     ; ... including program name
     pop     rax                     ; argv[0] = program name
