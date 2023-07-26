@@ -1,7 +1,7 @@
 section .bss
     words_len   equ     4253831
     words       resb    words_len
-    windex      resb    676
+    windex      resb    2704
 ; --------------------------------
 section .data
     words_path  db      "assets/words.txt", 0
@@ -49,6 +49,7 @@ _index_words:
 
     mov     rdi, words
     mov     rsi, words_len
+    add     rsi, rdi
     mov     r8b, 1                  ; new word flag
     mov     r12w, 0                 ; last first two chars
 
@@ -81,7 +82,7 @@ _index_words:
 
     push    rdi
     mov     di, r10w                
-    call    _char_pair_index_addr   ; get index address
+    call    _char_pair_index   ; get index address
     pop     rdi
 
     mov     [rax], rdi              ; save address in index
@@ -108,7 +109,7 @@ _index_words:
 
 ; rdi: two chars
 ; rax: address in memory of index
-_char_pair_index_addr:
+_char_pair_index:
     push    r8
     push    rbx
 
@@ -134,10 +135,47 @@ _char_pair_index_addr:
     pop     r8
     ret
 
-; rdi: two chars
-; rax: address in memory of first word with pair
-_char_pair_index:
-    call    _char_pair_index_addr
+; rdi: word address
+; rsi: word length
+_is_word_possible:
+    cmp     rsi, 2
+    jb      .possible
 
-    mov     rax, [rax]
+    mov     r10, rdi
+    push    rdi
+    xor     rdi, rdi
+    mov     di, [r10]
+    call    _char_pair_index        ; get index of first word with same beginning
+    pop     rdi
+
+    mov     r10, [rax]              ; start
+    mov     r11, r10
+    sub     r11, [rax + 4]          ; end
+
+    .compare:
+    xor     r8, r8
+
+    .loop:
+    cmp     r8, r11
+    jae     .impossible
+
+    cmp     r8, rsi
+    jae     .possible
+
+    mov     r12b, [rdi + r8]        ; tested word
+    mov     r13b, [r10 + r8]        ; dictionary word
+    cmp     r12b, r13b
+    jne     .compare
+
+    inc     r8
+    jmp     .loop
+
+    .impossible:
+    xor     rax, rax
+    jmp     .end
+
+    .possible:
+    mov     rax, 1
+
+    .end:
     ret

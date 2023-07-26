@@ -16,7 +16,7 @@ section .data
     select      db  "Please select a mode: ", 0X0A, \
                     "  - 1: T9 Encoder", 0x0A, \
                     "  - 2: Get all word combinations from a T9 sequel", 0x0A, \
-                    "  x 3: Decrypt a T9 sequel", 0x0A, \
+                    "  - 3: Decrypt a T9 sequel", 0x0A, \
                     "> "
     select_len  equ $ - select
     prompt      db  "Input: "
@@ -44,7 +44,7 @@ _select_mode:
     cmp     al, 1
     jb      _select_mode
 
-    cmp     al, 2
+    cmp     al, 3
     ja      _select_mode
 
     pop     rcx
@@ -96,6 +96,63 @@ _combinations:
     xor     r8, r8
     mov     r9, .on_combination
     call    _list_t9_combinations
+
+    mov     al, 0                   ; unset flag to print output buffer
+    
+    pop     r9
+    pop     r8
+    pop     rcx
+    pop     rdx
+    pop     rsi
+    pop     rdi
+    ret
+    
+    .on_combination:
+    push    rdi
+    push    rsi
+
+    mov     rsi, rdi
+    mov     rdi, output
+    call    _write_stdout
+
+    mov     rdi, lb
+    mov     rsi, lb_len
+    call    _write_stdout
+
+    pop     rsi
+    pop     rdi
+    ret
+
+_decrypt:
+    call    _load_words             ; load and index words in memory
+
+    mov     rdi, input
+    mov     rsi, rax
+    call    _is_word_possible
+
+    add     rax, 0x30
+    mov     [output], rax
+    mov     rax, 1
+    ret
+
+    push    rdi
+    push    rsi
+    push    rdx
+    push    rcx
+    push    r8
+    push    r9
+
+    mov     rdx, t9
+    mov     cx, t9_len
+    call    _str_to_t9
+
+    mov     rdi, t9
+    mov     si, ax
+    mov     rdx, output
+    mov     cx, output_len
+    xor     r8, r8
+    mov     r9, .on_combination
+    call    _decrypt_t9
 
     mov     al, 0                   ; unset flag to print output buffer
     
@@ -175,6 +232,9 @@ _start:
 
     cmp     r8b, 2
     je      _combinations
+
+    cmp     r8b, 3
+    je      _decrypt
     
     .print:
     cmp     al, 0                   ; flag to print output buffer

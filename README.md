@@ -19,6 +19,7 @@ This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 - [ ] 🎉 III: T9 Decrypter
 - [ ] 📚 Improve Comments
 - [ ] 📚 Pseudo code for t9 functions
+- [ ] 🧱 Cross Platform
 - [ ] 📦 Delivery
 
 ## Usage

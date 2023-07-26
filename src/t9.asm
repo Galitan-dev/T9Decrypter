@@ -393,3 +393,94 @@ _list_t9_combinations:
     pop     r10
     pop     r8
     ret
+
+; rdi:  t9 address
+; si:   t9 length
+; rdx:  ascii adress
+; cx:   max ascii length (overflow will be ignored)
+; r8w:  t9 offset (set to zero)
+; r9:   callback address
+; rdi:  callback: output length
+_decrypt_t9:
+    push    r8
+    push    r10
+    push    r12
+    push    r11
+    push    rbx
+
+    cmp     r8w, si
+    jae     .print
+    cmp     r8w, cx
+    jae     .print
+
+    mov     r12b, 1
+    and     r12b, r8b               ; odd flag
+    shr     r8w, 1
+
+    xor     r10, r10
+    mov     r10b, [rdi + r8]
+    mov     r11b, r10b
+    shr     r11b, 4
+    shl     r11b, 4
+    sub     r10b, r11b
+
+    cmp     r12b, 0
+    je      .even
+    
+    mov     r10b, r11b
+    shr     r10b, 4
+
+    .even:
+    cmp     r10b, 0
+    je      .end
+
+    push    r8
+    push    rdi
+    mov     dil, r10b
+    call    _list_t9_char_possibilites
+    pop     rdi
+    pop     r8
+    shl     r8w, 1
+    add     r8w, r12w
+
+    .loop:
+    cmp     bl, 0
+    je      .end
+
+    push    rdi
+    push    rsi
+    mov     rdi, rdx
+    mov     rsi, r8
+    inc     rsi
+    call    _is_word_possible
+    pop     rsi
+    pop     rdi
+
+    test    rax, rax
+    jz      .loop                   ; skip if word not possible
+
+    mov     [rdx + r8], al
+    inc     r8w
+    push    rax
+    call     _list_t9_combinations
+    pop     rax
+    dec     r8w
+
+    shr     rax, 8
+    dec     bl
+    .here:
+    jmp     .loop
+
+    .print:
+    push    rdi
+    mov     rdi, r8
+    call    r9
+    pop     rdi
+
+    .end:
+    pop     rbx
+    pop     r11
+    pop     r12
+    pop     r10
+    pop     r8
+    ret
