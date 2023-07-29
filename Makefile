@@ -15,3 +15,7 @@ run:
 
 clean:
 	rm -fr dist
+
+docker:
+	docker build . -t t9:latest
+	

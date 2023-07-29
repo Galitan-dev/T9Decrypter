@@ -18,9 +18,9 @@ This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 - [x] 🎉 III: T9 Decrypter
 - [ ] Decrypt T9 Sentances
 - [x] 📚 More constants and use of 'ascii' nasm syntaxt
-- [ ] 📚 Improve Comments
+- [x] 📚 Improve Comments
 - [ ] 📚 Pseudo code for t9 and words functions
-- [ ] 🧱 Cross Platform
+- [x] 🧱 Cross Platform
 - [ ] 📦 Delivery
 
 ## Usage
@@ -39,4 +39,11 @@ and run project with
     $ dist/main 1 bonjour
 
 ### Windows & MacOS
-Coming soon ^^
+
+Deprecated for now
+
+Build docker image
+    $ make docker
+
+and run docker image
+    $ docker run --rm -it t9:latest
