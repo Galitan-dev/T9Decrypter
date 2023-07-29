@@ -16,7 +16,7 @@ _encode_t9:
     xor     r8, r8
     xor     r12, r12
     
-    .loop:
+    .loop:                          ; for dil in rdi..+si (for each character)
     cmp     r8w, si
     jae     .next
     cmp     r8w, cx
@@ -32,12 +32,12 @@ _encode_t9:
     mov     [rdx + r12], al
     jmp     .continue
 
-    .odd:
+    .odd:                           ; two t9 char per byte, also:
     xor     r11, r11
-    mov     r11b, [rdx + r12]
-    shl     al, 4
-    add     al, r11b
-    mov     [rdx + r12], al
+    mov     r11b, [rdx + r12]       ; take first t9 char (0000 0101)
+    shl     al, 4                   ; offset it 4 bits to the left (0101 0000)
+    add     al, r11b                ; combine 2 chars (0101 1010)
+    mov     [rdx + r12], al         ; store it
     inc     r12w
 
     .continue:
@@ -78,7 +78,7 @@ _encode_t9_char:
     jae     .lowercase
 
     .invalid:
-    mov     al, 0
+    mov     al, 0                   ; empty t9 char
     jmp     .end
 
     .space:
@@ -89,7 +89,7 @@ _encode_t9_char:
     add     dil, 0x20               ; downcase
 
     .lowercase:
-    sub     dil, "a"               ; - a
+    sub     dil, "a"                ; - a
 
     cmp     dil, 25                 ; z
     je      .z

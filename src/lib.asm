@@ -95,7 +95,7 @@ _power:
     mov     rax, 1
     mov     r8, 0
 
-    .loop:
+    .loop:                          ; for r8 in 0..rsi (exponant)
     cmp     r8, rsi
     je      .done
     mul     rdi
@@ -120,7 +120,7 @@ _parse_int:
     dec     rdi                 ; indices starts at 0
     mov     r8, 0
 
-    .loop:
+    .loop:                      ; for r9b in rdi..+rsi
     cmp     r8, rsi
     je      .done
 
@@ -129,29 +129,29 @@ _parse_int:
     mov     r9b, [rdi + r8]     ; index from end
     neg     r8
 
-    cmp     r9b, "0" 
+    cmp     r9b, "0"            ; check validity
     jb      .err
     cmp     r9b, "9"
     ja      .err
-    sub     r9, "0"
+    sub     r9, "0"             ; and map between 0 and 9
     
     push    rax
     push    rdi
     push    rsi
     mov     rdi, 10
     mov     rsi, r8
-    call    _power
+    call    _power              ; multiply by its unity (i.e: 1, 10, 100, ...)
     mul     r9
     pop     rsi
     pop     rdi
     pop     r9
-    add     rax, r9
+    add     rax, r9             ; add to output
 
     inc     r8
     jmp     .loop
 
     .err:
-    inc     rbx
+    inc     rbx                 ; set err flag to 1
 
     .done:
     pop     rdi

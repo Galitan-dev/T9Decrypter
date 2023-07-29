@@ -108,7 +108,7 @@ _index_words:
     mov     r8, words               ; last_index
     add     r8, words_len
 
-    .filler:
+    .filler:                        ; set each index of char pair (i.e, bb) with no word to next existing char pair
     cmp     rdi, rsi
     jbe     .end
 

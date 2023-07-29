@@ -39,11 +39,10 @@ _select_mode:
     mov     rsi, select_len
     mov     rdx, mode
     mov     rcx, mode_len
-    call    _prompt_int
+    call    _prompt_int             ; prompt and parse integer
     
-    cmp     al, 1
-    jb      _select_mode
-
+    cmp     al, 1                   ; check mode exists
+    jb      _select_mode            
     cmp     al, 3
     ja      _select_mode
 
@@ -61,15 +60,21 @@ _encoder:
 
     mov     rdx, t9
     mov     cx, t9_len
-    call    _encode_t9
+    call    _encode_t9              ; encode string as a t9 sequel
 
     mov     rdi, t9
     mov     si, ax
     mov     rdx, output
     mov     cx, output_len
-    call    _t9_to_str
+    call    _t9_to_str              ; format t9 numbers in output buffer
 
-    mov     al, 1                   ; flag to print output buffer
+    mov     rdi, output
+    mov     rsi, output_len
+    call    _write_stdout
+
+    mov     rdi, lb
+    mov     rsi, lb_len
+    call    _write_stdout
 
     pop     rcx
     pop     rdx
@@ -87,7 +92,7 @@ _combinations:
 
     mov     rdx, t9
     mov     cx, t9_len
-    call    _str_to_t9
+    call    _str_to_t9              ; make input readable (as t9 sequel)
 
     mov     rdi, t9
     mov     si, ax
@@ -95,9 +100,7 @@ _combinations:
     mov     cx, output_len
     xor     r8, r8
     mov     r9, .on_combination
-    call    _list_t9_combinations
-
-    mov     al, 0                   ; unset flag to print output buffer
+    call    _list_t9_combinations   ; list combinations
     
     pop     r9
     pop     r8
@@ -113,11 +116,11 @@ _combinations:
 
     mov     rsi, rdi
     mov     rdi, output
-    call    _write_stdout
+    call    _write_stdout           ; print combination
 
     mov     rdi, lb
     mov     rsi, lb_len
-    call    _write_stdout
+    call    _write_stdout           ; print line break
 
     pop     rsi
     pop     rdi
@@ -135,18 +138,15 @@ _decrypt:
 
     mov     rdx, t9
     mov     cx, t9_len
-    call    _str_to_t9
+    call    _str_to_t9              ; make intput readable (as t9 sequel)
 
-    .here:
     mov     rdi, t9
     mov     si, ax
     mov     rdx, output
     mov     cx, output_len
     xor     r8, r8
     mov     r9, .on_combination
-    call    _decrypt_t9
-
-    mov     al, 0                   ; unset flag to print output buffer
+    call    _decrypt_t9             ; list combinations and filter validity (with branch filtering too)
     
     pop     r9
     pop     r8
@@ -162,11 +162,11 @@ _decrypt:
 
     mov     rsi, rdi
     mov     rdi, output
-    call    _write_stdout
+    call    _write_stdout           ; print output
 
     mov     rdi, lb
     mov     rsi, lb_len
-    call    _write_stdout
+    call    _write_stdout           ; print linebreak
 
     pop     rsi
     pop     rdi
@@ -177,7 +177,7 @@ _start:
     dec     r10                     ; ... including program name
     pop     rax                     ; argv[0] = program name
 
-    cmp     r10b, 1
+    cmp     r10b, 1                 ; if at least one argument is given, skip mode selection and parse it
     jb      .mode
 
     pop     rdi                     ; argv[1]
@@ -190,17 +190,17 @@ _start:
     mov     r8b, al
 
     .next:
-    cmp     r10b, 2
+    cmp     r10b, 1                 ; if two arguments are given, take second as input
     jb      .input
 
     pop     rdi
     xor     r11b, r11b
     xor     rsi, rsi
 
-    .loop:
+    .loop:                          ; measure cli input length
     mov     r11b, [rdi + rsi]
 
-    cmp     r11b, 0x00
+    cmp     r11b, 0x00              ; stop when null zero reached (null terminated string)
     je      .then
 
     inc     rsi
@@ -211,38 +211,22 @@ _start:
     mov     rsi, prompt_len
     mov     rdx, input
     mov     rcx, input_len
-    call    _prompt
+    call    _prompt                 ; prompt input when not in cli arguments
 
     mov     rdi, input
     mov     rsi, rax
 
     .then:
-    push    .print                    ; point the ret to .end
+    push    .end                        ; point the ret to .end
 
     cmp     r8b, 1
-    je      _encoder
+    je      _encoder                    ; MODE 1
 
     cmp     r8b, 2
-    je      _combinations
+    je      _combinations               ; MODE 2
 
     cmp     r8b, 3
-    je      _decrypt
-    
-    .print:
-    cmp     al, 0                   ; flag to print output buffer
-    je      .end
-
-    mov     rdi, result
-    mov     rsi, result_len
-    call    _write_stdout
-
-    mov     rdi, output
-    mov     rsi, output_len
-    call    _write_stdout
-
-    mov     rdi, lb
-    mov     rsi, lb_len
-    call    _write_stdout
+    je      _decrypt                    ; MODE 3
 
     .end:
     xor     edi, edi
