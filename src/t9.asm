@@ -62,19 +62,19 @@ _encode_t9_char:
     push    rdi
 
     ; map character between 0 and 26
-    cmp     dil, 0x20
+    cmp     dil, " "
     je      .space
 
-    cmp     dil, 0x41
+    cmp     dil, "A"
     jb      .invalid
 
-    cmp     dil, 0x7A
+    cmp     dil, "z"
     ja      .invalid
 
-    cmp     dil, 0x5A
+    cmp     dil, "Z"
     jbe     .uppercase
 
-    cmp     dil, 0x61
+    cmp     dil, "a"
     jae     .lowercase
 
     .invalid:
@@ -89,7 +89,7 @@ _encode_t9_char:
     add     dil, 0x20               ; downcase
 
     .lowercase:
-    sub     dil, 0x61               ; - a
+    sub     dil, "a"               ; - a
 
     cmp     dil, 25                 ; z
     je      .z
@@ -181,11 +181,11 @@ _t9_char_to_str:
     je      .none
 
     mov     al, dil
-    add     al, 0x30
+    add     al, "0"
     ret
 
     .space:
-    mov     al, 0x30
+    mov     al, " "
     ret
 
     .none:
@@ -215,7 +215,7 @@ _str_to_t9:
     jae     .next
 
     mov     r10b, [rdi + r8]
-    sub     r10b, 0x30
+    sub     r10b, "0"
 
     cmp     r10b, 0
     jne     .not_space
@@ -292,7 +292,7 @@ _list_t9_char_possibilites:
 
     .then:
     mov     dil, al
-    add     dil, 0x61
+    add     dil, "a"
     add     dil, bl
     xor     rax, rax
 
@@ -307,7 +307,7 @@ _list_t9_char_possibilites:
     jmp     .loop
 
     .space:
-    mov     rax, 0x20
+    mov     rax, " "
     mov     rbx, 1
 
     .end:
@@ -436,9 +436,7 @@ _decrypt_t9:
     push    r8
     push    rdi
     mov     dil, r10b
-    .1:
     call    _list_t9_char_possibilites
-    .2:
     pop     rdi
     pop     r8
     shl     r8w, 1

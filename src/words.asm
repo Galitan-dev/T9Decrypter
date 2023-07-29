@@ -148,8 +148,8 @@ _char_pair_index:
     shr     rdi, 8
     mov     bl, dil
 
-    sub     al, 0x61                ; map between 0 and 25 included
-    sub     bl, 0x61
+    sub     al, "a"                ; map between 0 and 25 included
+    sub     bl, "a"
 
     mov     r8, 26
     mul     r8                      ; 26 pairs for each char

@@ -17,7 +17,6 @@ This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 - [x] 💿 Efficient words indexing
 - [x] 🎉 III: T9 Decrypter
 - [ ] Decrypt T9 Sentances
-- [ ] Last bug fixes
 - [ ] 📚 More constants and use of 'ascii' nasm syntaxt
 - [ ] 📚 Improve Comments
 - [ ] 📚 Pseudo code for t9 functions

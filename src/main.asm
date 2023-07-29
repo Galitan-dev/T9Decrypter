@@ -182,7 +182,7 @@ _start:
 
     pop     rdi                     ; argv[1]
     mov     r8b, [rdi]
-    sub     r8b, 0x30
+    sub     r8b, "0"
     jmp     .next
 
     .mode:

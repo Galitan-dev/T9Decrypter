@@ -4,8 +4,6 @@
     SYS_TIME    equ     201
     STDIN       equ     0
     STDOUT      equ     1
-    ASCII_0     equ     0x30
-    ASCII_9     equ     0x39
 ; --------------------------------
 section .text
 
@@ -131,11 +129,11 @@ _parse_int:
     mov     r9b, [rdi + r8]     ; index from end
     neg     r8
 
-    cmp     r9b, ASCII_0 
+    cmp     r9b, "0" 
     jb      .err
-    cmp     r9b, ASCII_9
+    cmp     r9b, "9"
     ja      .err
-    sub     r9, ASCII_0
+    sub     r9, "0"
     
     push    rax
     push    rdi
@@ -159,37 +157,3 @@ _parse_int:
     pop     rdi
     pop     r9
     ret
-
-; ; rdi: adress of first byte of output
-; ; rsi: number to render
-; /!\ callee convention
-; _to_str:
-
-;     xor rax, rax
-;     mov rax, rsi
-;     mov r8, 10
-;     xor r9, r9
-
-;     .loop:
-;     cmp rax, 0
-;     jbe .write
-;     xor rdx, rdx
-;     .here:
-;     div r8d
-;     add rdx, ASCII_0
-;     push rdx
-;     inc r9
-;     jmp .loop
-
-;     .write:
-;     cmp r9, 0
-;     je .next
-
-;     inc rdi
-;     pop rax
-;     mov [rdi], al
-;     dec r9
-;     jmp .write
-
-;     .next:
-;     ret
