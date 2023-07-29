@@ -377,7 +377,6 @@ _list_t9_combinations:
 
     shr     rax, 8
     dec     bl
-    .here:
     jmp     .loop
 
     .print:
@@ -437,7 +436,9 @@ _decrypt_t9:
     push    r8
     push    rdi
     mov     dil, r10b
+    .1:
     call    _list_t9_char_possibilites
+    .2:
     pop     rdi
     pop     r8
     shl     r8w, 1
@@ -446,6 +447,9 @@ _decrypt_t9:
     .loop:
     cmp     bl, 0
     je      .end
+
+    mov     [rdx + r8], al
+    push    rax
 
     push    rdi
     push    rsi
@@ -457,18 +461,18 @@ _decrypt_t9:
     pop     rdi
 
     test    rax, rax
-    jz      .loop                   ; skip if word not possible
+    jz      .not_possible
 
-    mov     [rdx + r8], al
     inc     r8w
     push    rax
-    call     _list_t9_combinations
+    call     _decrypt_t9
     pop     rax
     dec     r8w
 
+    .not_possible:
+    pop     rax
     shr     rax, 8
     dec     bl
-    .here:
     jmp     .loop
 
     .print:

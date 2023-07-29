@@ -126,15 +126,6 @@ _combinations:
 _decrypt:
     call    _load_words             ; load and index words in memory
 
-    mov     rdi, input
-    mov     rsi, rax
-    call    _is_word_possible
-
-    add     rax, 0x30
-    mov     [output], rax
-    mov     rax, 1
-    ret
-
     push    rdi
     push    rsi
     push    rdx
@@ -146,6 +137,7 @@ _decrypt:
     mov     cx, t9_len
     call    _str_to_t9
 
+    .here:
     mov     rdi, t9
     mov     si, ax
     mov     rdx, output

@@ -15,8 +15,10 @@ This is an entry in [the second devcode challenge](docs/challenge.pdf)<br>
 - [x] 📚 Callee convention (push registers used in current function)
 - [x] 🙋‍♂️ Extract arguments from command line
 - [x] 💿 Efficient words indexing
+- [x] 🎉 III: T9 Decrypter
+- [ ] Decrypt T9 Sentances
+- [ ] Last bug fixes
 - [ ] 📚 More constants and use of 'ascii' nasm syntaxt
-- [ ] 🎉 III: T9 Decrypter
 - [ ] 📚 Improve Comments
 - [ ] 📚 Pseudo code for t9 functions
 - [ ] 🧱 Cross Platform

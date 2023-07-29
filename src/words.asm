@@ -1,7 +1,8 @@
 section .bss
     words_len   equ     4253831
     words       resb    words_len
-    windex      resb    2704
+    windex_len  equ     5408
+    windex      resb    windex_len
 ; --------------------------------
 section .data
     words_path  db      "assets/words.txt", 0
@@ -55,7 +56,7 @@ _index_words:
 
     .loop:
     cmp     rdi, rsi
-    jae     .end
+    jae     .next
 
     xor     r10w, r10w
     mov     r10b, [rdi]
@@ -81,8 +82,9 @@ _index_words:
     mov     r12w, r10w              ; save pair as new
 
     push    rdi
-    mov     di, r10w                
-    call    _char_pair_index   ; get index address
+    xor     rdi, rdi
+    mov     di, r10w   
+    call    _char_pair_index        ; get index address
     pop     rdi
 
     mov     [rax], rdi              ; save address in index
@@ -98,6 +100,31 @@ _index_words:
     add     rdi, 2
     jmp     .loop
 
+    .next:
+    mov     rsi, windex             ; end
+    mov     rdi, windex_len         ; length
+    add     rdi, rsi                ; start
+
+    mov     r8, words               ; last_index
+    add     r8, words_len
+
+    .filler:
+    cmp     rdi, rsi
+    jbe     .end
+
+    mov     r10, [rdi]
+    sub     rdi, 8
+    
+    cmp     r10, 0
+    jne     .defined
+
+    mov     [rdi + 8], r8
+    jmp     .filler
+
+    .defined:
+    mov     r8, r10
+    jmp     .filler
+
     .end:
     pop     r12
     pop     r11
@@ -112,10 +139,11 @@ _index_words:
 _char_pair_index:
     push    r8
     push    rbx
+    push    rdx
 
     xor     rax, rax
     xor     rbx, rbx
-
+    
     mov     al, dil                 ; split chars
     shr     rdi, 8
     mov     bl, dil
@@ -127,10 +155,11 @@ _char_pair_index:
     mul     r8                      ; 26 pairs for each char
     add     rax, rbx
 
-    mov     r8, 4
-    mul     r8b                     ; 4 bytes for each index
+    mov     r8, 8
+    mul     r8                      ; 8 bytes for each index
     add     rax, windex             ; memory heap offset
 
+    pop     rdx
     pop     rbx
     pop     r8
     ret
@@ -138,6 +167,13 @@ _char_pair_index:
 ; rdi: word address
 ; rsi: word length
 _is_word_possible:
+    push    rdi
+    push    r8
+    push    r10
+    push    r11
+    push    r12
+    push    r14
+
     cmp     rsi, 2
     jb      .possible
 
@@ -149,26 +185,42 @@ _is_word_possible:
     pop     rdi
 
     mov     r10, [rax]              ; start
-    mov     r11, r10
-    sub     r11, [rax + 4]          ; end
+    mov     r11, [rax + 8]          ; end
+    xor     r8, r8
+    xor     r14, r14
 
     .compare:
-    xor     r8, r8
-
-    .loop:
-    cmp     r8, r11
+    cmp     r10, r11
     jae     .impossible
+
+    test    r14, r14
+    jnz     .not_equal
 
     cmp     r8, rsi
     jae     .possible
 
-    mov     r12b, [rdi + r8]        ; tested word
-    mov     r13b, [r10 + r8]        ; dictionary word
-    cmp     r12b, r13b
-    jne     .compare
+    .not_equal:
+    mov     r12b, [r10]
+    mov     r13b, [rdi + r8]
 
+    cmp     r12b, 0x0A
+    jne     .next
+
+    xor     r8, r8
+    xor     r14, r14
+    inc     r10
+    jmp     .compare
+
+    .next:
+    cmp     r12b, r13b
+    je      .then
+    
+    mov     r14, 1                  ; words not equal
+
+    .then:
     inc     r8
-    jmp     .loop
+    inc     r10
+    jmp     .compare
 
     .impossible:
     xor     rax, rax
@@ -178,4 +230,10 @@ _is_word_possible:
     mov     rax, 1
 
     .end:
+    pop     r14
+    pop     r12
+    pop     r11
+    pop     r10
+    pop     r8
+    pop     rdi
     ret
