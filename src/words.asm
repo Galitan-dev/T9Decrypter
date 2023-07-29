@@ -112,17 +112,17 @@ _index_words:
     cmp     rdi, rsi
     jbe     .end
 
-    mov     r10, [rdi]
+    mov     r10, [rdi]              ; get index
     sub     rdi, 8
     
-    cmp     r10, 0
+    cmp     r10, 0                  ; check if set
     jne     .defined
 
-    mov     [rdi + 8], r8
+    mov     [rdi + 8], r8           ; if not, apply last saved
     jmp     .filler
 
     .defined:
-    mov     r8, r10
+    mov     r8, r10                 ; if yes, save it as last
     jmp     .filler
 
     .end:
@@ -174,7 +174,7 @@ _is_word_possible:
     push    r12
     push    r14
 
-    cmp     rsi, 2
+    cmp     rsi, 2                  ; there is at least one word for each letters lol
     jb      .possible
 
     mov     r10, rdi
@@ -191,36 +191,36 @@ _is_word_possible:
 
     .compare:
     cmp     r10, r11
-    jae     .impossible
+    jae     .impossible             ; if all words with the same char pair have already been checked, its ended
 
     test    r14, r14
-    jnz     .not_equal
+    jnz     .not_equal              ; skip word if already mismatched
 
     cmp     r8, rsi
-    jae     .possible
+    jae     .possible               ; if read the entire checked word without any mismatch, it's possible
 
     .not_equal:
-    mov     r12b, [r10]
-    mov     r13b, [rdi + r8]
+    mov     r12b, [r10]             ; checked word char
+    mov     r13b, [rdi + r8]        ; dictionnary word char
 
-    cmp     r12b, 0x0A
-    jne     .next
+    cmp     r12b, 0x0A              ; if new word (line break)
+    jne     .next                   ; skip char comparison
 
     xor     r8, r8
     xor     r14, r14
     inc     r10
-    jmp     .compare
+    jmp     .compare                ; next word
 
     .next:
-    cmp     r12b, r13b
+    cmp     r12b, r13b              ; char comparison
     je      .then
     
-    mov     r14, 1                  ; words not equal
+    mov     r14, 1                  ; missmatch
 
     .then:
     inc     r8
     inc     r10
-    jmp     .compare
+    jmp     .compare                ; next char
 
     .impossible:
     xor     rax, rax

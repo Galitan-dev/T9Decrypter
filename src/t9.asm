@@ -129,14 +129,14 @@ _t9_to_str:
 
     xor     r8, r8
     
-    .loop:
+    .loop:                          ; for each t9 chars
     cmp     r8w, si
     ja      .next
-    cmp     r8w, cx
+    cmp     r8w, cx                 ; check if there is still some place in output 
     jae     .next
 
     xor     r10, r10
-    mov     r10b, [rdi + r8]
+    mov     r10b, [rdi + r8]        ; split the byte in two t9 chars
     mov     r11b, r10b
     shr     r11b, 4
     shl     r11b, 4
@@ -145,19 +145,19 @@ _t9_to_str:
 
     push    rdi
     mov     dil, r10b
-    call    _t9_char_to_str
-    cmp     al, 0
-    je      .second
+    call    _t9_char_to_str         ; format first t9 char
+    cmp     al, 0                   ; if empty char
+    je      .second                 ; don't save it
 
-    mov     [rdx + r8 * 2], al
+    mov     [rdx + r8 * 2], al      ; save it
 
     .second:
     mov     dil, r11b
-    call    _t9_char_to_str
-    cmp     al, 0
-    je      .then
+    call    _t9_char_to_str         ; format second t9 char
+    cmp     al, 0                   ; if empty char
+    je      .then                   ; don't save it
 
-    mov     [rdx + r8 * 2 + 1], al
+    mov     [rdx + r8 * 2 + 1], al  ; save it
 
     .then:
     pop     rdi
@@ -177,11 +177,11 @@ _t9_char_to_str:
     cmp     dil, 10
     je      .space
 
-    cmp     dil, 0
+    cmp     dil, 0                  ; empty t9 char
     je      .none
 
-    mov     al, dil
-    add     al, "0"
+    mov     al, dil                 
+    add     al, "0"                 ; to ascii
     ret
 
     .space:
@@ -208,22 +208,22 @@ _str_to_t9:
     xor     r12, r12
     xor     rbx, rbx
     
-    .loop:
+    .loop:                          ; for each char in string
     cmp     r8w, si
     jae     .next
-    cmp     r8w, cx
+    cmp     r8w, cx                 ; check if there is still some space in output
     jae     .next
 
     mov     r10b, [rdi + r8]
-    sub     r10b, "0"
+    sub     r10b, "0"               ; map between 0 and 9
 
-    cmp     r10b, 0
+    cmp     r10b, 0                 ; if space
     jne     .not_space
 
-    mov     r10b, 10
+    mov     r10b, 10                ; set it to 10 (zero is empty)
 
     .not_space:
-    test    r8b, 1
+    test    r8b, 1                  ; test if odd char
     jnz      .odd
 
     mov     [rdx + r12], r10b
@@ -231,10 +231,10 @@ _str_to_t9:
 
     .odd:
     xor     r11, r11
-    mov     r11b, [rdx + r12]
-    shl     r10b, 4
-    add     r10b, r11b
-    mov     [rdx + r12], r10b
+    mov     r11b, [rdx + r12]       ; get first char (0000 0101)
+    shl     r10b, 4                 ; 4 bytes offset (0101 0000)
+    add     r10b, r11b              ; join the two chars (0101 1010)
+    mov     [rdx + r12], r10b       ; save them
     inc     r12w
 
     .continue:
@@ -270,7 +270,7 @@ _list_t9_char_possibilites:
     mov     r8b, 3                  ; number of possibilities
     sub     dil, 2                  ; between 0 and 7 included
 
-    cmp     dil, 5
+    cmp     dil, 5                  ; t5 and t7 have four chars
     je      .four
     cmp     dil, 7
     je      .four
@@ -281,19 +281,19 @@ _list_t9_char_possibilites:
     inc     r8b                     ; 4 possibilites for t7 and t9
 
     .next:
-    mov     bl, r8b
+    mov     bl, r8b                 ; number of possibilities
     mov     rax, 3
-    mul     dil
+    mul     dil                     ; 3 * t9 char
 
     cmp     dil, 6
     jb      .then
 
-    inc     al                     ; t7 has four chars, offset 1 for t8 and t9
+    inc     al                      ; t7 has four chars, offset 1 for t8 and t9
 
     .then:
     mov     dil, al
-    add     dil, "a"
-    add     dil, bl
+    add     dil, "a"                ; first ascii char
+    add     dil, bl                 ; last ascii char (little endian)
     xor     rax, rax
 
     .loop:
@@ -301,9 +301,9 @@ _list_t9_char_possibilites:
     je      .end
 
     dec     dil
-    shl     rax, 8
-    mov     al, dil
-    dec     r8b
+    shl     rax, 8                  ; offset rax to make space
+    mov     al, dil                 ; push char in space
+    dec     r8b                     ; next char
     jmp     .loop
 
     .space:
@@ -329,60 +329,60 @@ _list_t9_combinations:
     push    r11
     push    rbx
 
-    cmp     r8w, si
+    cmp     r8w, si                 ; if no more t9 char
     jae     .print
-    cmp     r8w, cx
-    jae     .print
+    cmp     r8w, cx                 ; or if no more space in output
+    jae     .print                  ; push combination
 
-    mov     r12b, 1
+    mov     r12b, 1 
     and     r12b, r8b               ; odd flag
-    shr     r8w, 1
+    shr     r8w, 1                  ; divide t9 char index per two (two t9 char per byte)
 
     xor     r10, r10
-    mov     r10b, [rdi + r8]
+    mov     r10b, [rdi + r8]        ; get t9 char
     mov     r11b, r10b
     shr     r11b, 4
     shl     r11b, 4
     sub     r10b, r11b
 
-    cmp     r12b, 0
-    je      .even
+    cmp     r12b, 0                 ; if odd flag is unset
+    je      .even                   ; keep first t9 char
     
-    mov     r10b, r11b
+    mov     r10b, r11b              ; else take second t9 char
     shr     r10b, 4
 
     .even:
-    cmp     r10b, 0
+    cmp     r10b, 0                 ; if empty char, end it (works as the terminator here)
     je      .end
 
     push    r8
     push    rdi
     mov     dil, r10b
-    call    _list_t9_char_possibilites
+    call    _list_t9_char_possibilites  ; one t9 char, multiple ascii chars
     pop     rdi
     pop     r8
-    shl     r8w, 1
-    add     r8w, r12w
+    shl     r8w, 1                  ; take back ouput index
+    add     r8w, r12w               ; don't forget the last bit :)))
 
     .loop:
-    cmp     bl, 0
+    cmp     bl, 0                   ; end if no more char
     je      .end
 
-    mov     [rdx + r8], al
-    inc     r8w
+    mov     [rdx + r8], al          ; store in output current char
+    inc     r8w 
     push    rax
-    call     _list_t9_combinations
+    call     _list_t9_combinations  ; recursivity, continue with current combination and next t9 chars
     pop     rax
     dec     r8w
 
-    shr     rax, 8
-    dec     bl
+    shr     rax, 8                  ; get next possible char
+    dec     bl                      ; one possibility eliminated
     jmp     .loop
 
     .print:
     push    rdi
     mov     rdi, r8
-    call    r9
+    call    r9                      ; callback, when a combination is found
     pop     rdi
 
     .end:
@@ -407,76 +407,76 @@ _decrypt_t9:
     push    r11
     push    rbx
 
-    cmp     r8w, si
+    cmp     r8w, si                 ; if no more t9 char
     jae     .print
-    cmp     r8w, cx
-    jae     .print
+    cmp     r8w, cx                 ; or if no more space in output
+    jae     .print                  ; push combination
 
     mov     r12b, 1
     and     r12b, r8b               ; odd flag
-    shr     r8w, 1
+    shr     r8w, 1                  ; divide t9 char index per two (two t9 char per byte)
 
     xor     r10, r10
-    mov     r10b, [rdi + r8]
+    mov     r10b, [rdi + r8]        ; get t9 char
     mov     r11b, r10b
     shr     r11b, 4
     shl     r11b, 4
     sub     r10b, r11b
 
-    cmp     r12b, 0
-    je      .even
+    cmp     r12b, 0                 ; if odd flag is unset
+    je      .even                   ; keep first t9 char
     
-    mov     r10b, r11b
+    mov     r10b, r11b              ; else take second t9 char
     shr     r10b, 4
 
     .even:
-    cmp     r10b, 0
+    cmp     r10b, 0                 ; if empty char, end it (works as the terminator here)
     je      .end
 
     push    r8
     push    rdi
     mov     dil, r10b
-    call    _list_t9_char_possibilites
+    call    _list_t9_char_possibilites  ; one t9 char, multiple ascii chars
     pop     rdi
     pop     r8
-    shl     r8w, 1
-    add     r8w, r12w
+    shl     r8w, 1                  ; take back ouput index
+    add     r8w, r12w               ; don't forget the last bit :)))
 
     .loop:
-    cmp     bl, 0
+    cmp     bl, 0                   ; end if no more char
     je      .end
 
-    mov     [rdx + r8], al
-    push    rax
+    mov     [rdx + r8], al          ; store current char in output
+    push    rax                     ; save next possible chars (made me hard times)
 
     push    rdi
     push    rsi
     mov     rdi, rdx
     mov     rsi, r8
     inc     rsi
-    call    _is_word_possible
+    call    _is_word_possible       ; test if word if possible
     pop     rsi
     pop     rdi
 
     test    rax, rax
-    jz      .not_possible
+    jz      .not_possible           ; skip recursivity if not possible (branch destroyed)
 
     inc     r8w
     push    rax
-    call     _decrypt_t9
+    call     _decrypt_t9            ; recursivity, continue with current combination and next t9 chars
     pop     rax
     dec     r8w
 
     .not_possible:
     pop     rax
-    shr     rax, 8
-    dec     bl
+    shr     rax, 8                  ; get next possible char
+    dec     bl                      ; one possibility eliminated
     jmp     .loop
 
     .print:
     push    rdi
     mov     rdi, r8
-    call    r9
+    call    r9                      ; callback, when a combination is found
     pop     rdi
 
     .end:
